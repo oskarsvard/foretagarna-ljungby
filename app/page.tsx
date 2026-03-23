@@ -2,6 +2,8 @@ import { getEvents } from "@/lib/db";
 import { logout } from "@/app/actions/auth";
 import CalendarPage from "@/components/CalendarPage";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const events = await getEvents();
 
