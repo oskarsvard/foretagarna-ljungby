@@ -18,7 +18,7 @@ Delat lösenord — alla medlemmar använder samma kod.
 
 ### Flöde
 
-1. Middleware (`middleware.ts`) körs på alla requests utom `/login` och statiska filer.
+1. Middleware (`middleware.ts`) körs på alla requests utom `/login`, `/_next/`, och statiska filer (konfigurerat via `matcher`).
 2. Middleware kontrollerar om en giltig JWT-cookie (`session`) finns.
 3. Om inte → redirect till `/login`.
 4. På `/login` skickar användaren lösenordet via ett formulär (POST till en Server Action).
@@ -26,10 +26,16 @@ Delat lösenord — alla medlemmar använder samma kod.
 6. Vid rätt lösenord: skapar en JWT (signerad med `JWT_SECRET` env-variabel), sätter den som httpOnly-cookie, redirect till `/`.
 7. JWT har 30 dagars utgångstid.
 
-### Env-variabler (auth)
+### Logout
+
+- En "Logga ut"-knapp visas i headern på huvudsidan.
+- Server Action rensar session-cookien och redirectar till `/login`.
+
+### Env-variabler
 
 - `APP_PASSWORD` — det delade lösenordet
 - `JWT_SECRET` — hemlig nyckel för JWT-signering
+- `POSTGRES_URL` (+ övriga `POSTGRES_*`-variabler som Vercel sätter automatiskt vid Postgres-integration)
 
 ## Databas
 
@@ -79,8 +85,8 @@ Huvudsidan. Toggle mellan två vyer:
 
 - Månadsgrid (mån–sön).
 - Navigering framåt/bakåt mellan månader.
-- Dagar med events markeras med en prick/indikator.
-- Klick på en dag med event visar detaljer (inline eller modal).
+- Dagar med events markeras med en prick/indikator. Flerdagarsevents visar prickar på alla dagar i intervallet.
+- Klick på en dag med event visar detaljer (inline under dagen).
 
 ### Toggle
 
@@ -88,7 +94,9 @@ En enkel knappgrupp (List | Kalender) högst upp på sidan för att växla vy. S
 
 ## Seed-data
 
-Ett seed-script (`scripts/seed.ts`) som körs manuellt för att populera databasen med de 18 datumen:
+Ett seed-script (`scripts/seed.ts`) som körs med `npx tsx scripts/seed.ts`. Scriptet är idempotent — det tömmer tabellen och insertar alla rader på nytt. Kräver att `POSTGRES_URL` är satt (eller `.env.local` finns).
+
+De 18 datumen:
 
 | Datum | Titel | Tid | Plats |
 |-------|-------|-----|-------|
